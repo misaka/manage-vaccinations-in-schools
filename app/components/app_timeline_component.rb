@@ -63,6 +63,8 @@ class AppTimelineComponent < ViewComponent::Base
       "#{id_info}#{formatted_details}"
     elsif item[:description].present?
       item[:description]
+    else
+      ""
     end
   end
 
