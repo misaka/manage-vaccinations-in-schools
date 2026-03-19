@@ -124,9 +124,26 @@ class Inspect::Timeline::PatientsController < ApplicationController
       Hash
     )
 
-    details_params.each_with_object({}) do |(event_type, fields), hash|
-      selected_fields = Array(fields).reject(&:blank?).map(&:to_sym)
-      hash[event_type.to_sym] = selected_fields
+    event_list_details =
+      (@event_names - ["audits"]).map { [it.to_sym, []] }.to_h
+    user_submitted_details =
+      details_params.each_with_object(
+        event_list_details
+      ) do |(event_type, fields), hash|
+        selected_fields = Array(fields).reject(&:blank?).map(&:to_sym)
+        hash[event_type.to_sym] = selected_fields
+      end
+
+    details_mask =
+      (
+        if @show_pii
+          TimelineRecords::AVAILABLE_DETAILS_CONFIG_WITH_PII
+        else
+          TimelineRecords::AVAILABLE_DETAILS_CONFIG
+        end
+      )
+    (details_mask.keys & user_submitted_details.keys).index_with do |key|
+      details_mask[key] & user_submitted_details[key]
     end
   end
 
