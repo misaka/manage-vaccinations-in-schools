@@ -158,7 +158,7 @@ describe "Self-consent" do
   end
 
   def when_the_nurse_edits_the_assessment_the_child_as_gillick_competent
-    click_on "Edit Gillick competence"
+    click_on "Update Gillick competence"
 
     # notes from previous assessment
     expect(page).to have_content(
