@@ -97,6 +97,8 @@ class Location < ApplicationRecord
 
   scope :clinic, -> { generic_clinic.or(community_clinic) }
 
+  scope :school, -> { gias_school.or(generic_school) }
+
   scope :where_urn_and_site,
         ->(urn_and_site) do
           where(
@@ -228,6 +230,8 @@ class Location < ApplicationRecord
   end
 
   def clinic? = generic_clinic? || community_clinic?
+
+  def school? = gias_school? || generic_school?
 
   def dfe_number
     "#{gias_local_authority_code}#{gias_establishment_number}" if gias_school?

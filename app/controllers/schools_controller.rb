@@ -10,12 +10,7 @@ class SchoolsController < ApplicationController
   def index
     authorize Location, policy_class: SchoolPolicy
 
-    locations =
-      @form.apply(
-        policy_scope(Location).gias_school.or(
-          policy_scope(Location).generic_school
-        ) # TODO: school
-      )
+    locations = @form.apply(policy_scope(Location).school)
 
     @pagy, @locations = pagy(locations)
 

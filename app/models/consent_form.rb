@@ -133,7 +133,7 @@ class ConsentForm < ApplicationRecord
            source: :team_locations
 
   has_many :eligible_schools,
-           -> { gias_school }, # TODO: school
+           -> { gias_school },
            through: :eligible_team_locations,
            source: :location
 
