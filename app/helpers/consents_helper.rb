@@ -16,6 +16,10 @@ module ConsentsHelper
       reasons.insert(0, "contains_gelatine")
     end
 
+    if consent.location&.school?
+      reasons.insert(-2, "do_not_want_vaccination_at_school")
+    end
+
     reasons.map do |value|
       label = refusal_reason_label(consent, value)
 

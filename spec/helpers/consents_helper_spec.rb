@@ -3,6 +3,26 @@
 describe ConsentsHelper do
   subject(:reasons) { helper.consent_refusal_reasons(consent) }
 
+  describe "#consent_refusal_reasons" do
+    subject(:reasons) { helper.consent_refusal_reasons(consent).map(&:value) }
+
+    context "with a ConsentForm for a school session" do
+      let(:session) { create(:session, location: create(:school)) }
+      let(:consent) { build(:consent_form, session:) }
+
+      it { should include("do_not_want_vaccination_at_school") }
+    end
+
+    context "with a ConsentForm for a clinic session" do
+      let(:session) { create(:session, location: create(:generic_clinic)) }
+      let(:consent) { build(:consent_form, session:) }
+
+      it "does not include do_not_want_vaccination_at_school" do
+        expect(reasons).not_to include("do_not_want_vaccination_at_school")
+      end
+    end
+  end
+
   shared_examples "refusal reason label" do |expected_label|
     it "uses the programme-specific refusal reason label" do
       reason = reasons.find { |reason| reason.value == "contains_gelatine" }

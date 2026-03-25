@@ -297,6 +297,7 @@ en:
           contains_gelatine_mmrv: I’m concerned the vaccine contains gelatine
           medical: Medical reasons
           other: Other
+          do_not_want_vaccination_at_school: Do not want vaccination at school
           personal_choice: Personal choice
           will_be_vaccinated_elsewhere: Vaccine will be given elsewhere
         responses:
@@ -793,6 +794,7 @@ en:
         contains_gelatine: of the gelatine in the nasal spray
         medical_reasons: of medical reasons
         other: of other reasons
+        does_not_want_vaccination_at_school: they do not want vaccination at school
         personal_choice: of personal choice
         will_be_vaccinated_elsewhere: they will be given the vaccine elsewhere
     vaccination_mailer:
