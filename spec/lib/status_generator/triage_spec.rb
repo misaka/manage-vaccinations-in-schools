@@ -364,6 +364,46 @@ describe StatusGenerator::Triage do
     end
   end
 
+  describe "#created_at" do
+    subject { generator.created_at }
+
+    context "with no triage" do
+      it { should be_nil }
+    end
+
+    context "with a safe to vaccinate triage" do
+      let!(:triage) do
+        create(:triage, :safe_to_vaccinate, patient:, programme:)
+      end
+
+      it { should eq(triage.created_at) }
+    end
+
+    context "with a safe to vaccinate triage and vaccinated" do
+      let!(:triage) do
+        create(:triage, :safe_to_vaccinate, patient:, programme:)
+      end
+
+      before { create(:vaccination_record, patient:, programme:) }
+
+      it { should eq(triage.created_at) }
+    end
+
+    context "with a do not vaccinate triage" do
+      let!(:triage) { create(:triage, :do_not_vaccinate, patient:, programme:) }
+
+      it { should eq(triage.created_at) }
+    end
+
+    context "with an invalidated safe to vaccinate triage" do
+      before do
+        create(:triage, :safe_to_vaccinate, :invalidated, patient:, programme:)
+      end
+
+      it { should be_nil }
+    end
+  end
+
   describe "#without_gelatine" do
     subject { generator.without_gelatine }
 
