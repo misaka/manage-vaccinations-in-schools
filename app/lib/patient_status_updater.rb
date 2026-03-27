@@ -46,12 +46,19 @@ class PatientStatusUpdater < PatientScopedUpdater
         :attendance_record,
         :consents,
         :patient,
-        :patient_locations,
         :triages,
         :vaccination_records,
-        :parents
+        :parents,
+        :consent_notifications,
+        patient_locations: {
+          location: [
+            { team_locations: { sessions: :session_programme_year_groups } }
+          ]
+        }
       )
       .find_in_batches do |batch|
+        preload_location_programme_year_groups(batch)
+
         batch.each(&:assign)
 
         Patient::ProgrammeStatus.import!(
@@ -179,5 +186,24 @@ class PatientStatusUpdater < PatientScopedUpdater
           hash[session_id][year_group] ||= []
           hash[session_id][year_group] << programme_type
         end
+  end
+
+  # We preload this association separately because including it in the nested
+  # `patient_locations` preload (see includes above) caused the updater process
+  # to be killed, even with very small batches. The likely cause is memory pressure
+  # from eager loading a deeply nested association graph.
+  #
+  # Preloading it here for the distinct `Location` records in each batch keeps
+  # `StatusGenerator::Programme` query-free without incurring the cost of the
+  # larger nested preload.
+  def preload_location_programme_year_groups(batch)
+    locations = batch.flat_map(&:patient_locations).map(&:location).uniq
+
+    ActiveRecord::Associations::Preloader.new(
+      records: locations,
+      associations: {
+        location_programme_year_groups: :location_year_group
+      }
+    ).call
   end
 end

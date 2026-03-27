@@ -7,7 +7,9 @@ class StatusGenerator::Consent
     patient:,
     consents:,
     vaccination_records:,
-    parents:
+    parents:,
+    sessions:,
+    consent_notifications:
   )
     @programme_type = programme_type
     @academic_year = academic_year
@@ -15,6 +17,8 @@ class StatusGenerator::Consent
     @consents = consents
     @vaccination_records = vaccination_records
     @parents = parents
+    @sessions = sessions
+    @consent_notifications = consent_notifications
   end
 
   def programme
@@ -32,6 +36,10 @@ class StatusGenerator::Consent
       :conflicts
     elsif status_should_be_no_contact_details?
       :no_contact_details
+    elsif status_should_be_request_scheduled?
+      :request_scheduled
+    elsif status_should_be_request_not_scheduled?
+      :request_not_scheduled
     elsif status_should_be_no_response?
       :no_response
     else
@@ -62,7 +70,9 @@ class StatusGenerator::Consent
               :patient,
               :consents,
               :vaccination_records,
-              :parents
+              :parents,
+              :sessions,
+              :consent_notifications
 
   def vaccinated?
     return @vaccinated if defined?(@vaccinated)
@@ -161,5 +171,22 @@ class StatusGenerator::Consent
   def latest_consents
     @latest_consents ||=
       ConsentGrouper.call(consents, programme_type:, academic_year:)
+  end
+
+  def parents_contactable? = parents.any?(&:contactable?)
+
+  def status_should_be_request_scheduled?
+    parents_contactable? && consent_notifications.empty? &&
+      sessions.any? do
+        # Not using send_consent_requests_at.future?
+        # because it doesn't work with Timecop.
+        it.send_consent_requests_at &&
+          it.send_consent_requests_at > Time.current
+      end
+  end
+
+  def status_should_be_request_not_scheduled?
+    parents_contactable? && consent_notifications.empty? &&
+      (sessions.empty? || sessions.any? { it.send_consent_requests_at.nil? })
   end
 end
