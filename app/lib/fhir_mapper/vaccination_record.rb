@@ -97,7 +97,11 @@ module FHIRMapper
         attrs[:location_name] = fhir_record.location.identifier.value
       end
 
-      attrs[:performed_ods_code] = org_performer_ods_code_from_fhir(fhir_record)
+      org_actor = org_performer_actor_from_fhir(fhir_record)
+      attrs[:performed_ods_code] = org_actor&.identifier&.value
+      if org_actor&.display.present?
+        notes << "Performing organisation display name: #{org_actor.display}"
+      end
 
       user_performer_name = user_performer_name_from_fhir(fhir_record)
       attrs[:performed_by_given_name] = user_performer_name&.given&.first
@@ -308,10 +312,8 @@ module FHIRMapper
       )
     end
 
-    private_class_method def self.org_performer_ods_code_from_fhir(fhir_record)
-      org_actor =
-        fhir_record.performer.find { it.actor&.type == "Organization" }&.actor
-      org_actor&.identifier&.value
+    private_class_method def self.org_performer_actor_from_fhir(fhir_record)
+      fhir_record.performer.find { it.actor&.type == "Organization" }&.actor
     end
 
     def fhir_reason_code
