@@ -585,6 +585,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:nhs_immunisations_api_primary_source) { should be true }
 
         its(:notes) { should be_nil }
+
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "822851000000102"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Seasonal influenza vaccination 111 (procedure)"
+        end
       end
 
       context "with a record with not full dose" do
@@ -710,6 +718,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:performed_ods_code) { should eq "B0C4P" }
         its(:nhs_immunisations_api_primary_source) { should be true }
 
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "955651000000100"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Influenza vaccination given by other healthcare provider (situation)"
+        end
+
         its(:notes) { should be_nil }
       end
 
@@ -744,6 +760,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:outcome) { should eq "administered" }
         its(:performed_ods_code) { should eq "B0C4P" }
         its(:nhs_immunisations_api_primary_source) { should be true }
+
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "884861000000100"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of first intranasal seasonal influenza vaccination"
+        end
 
         its(:notes) do
           should include(
@@ -783,6 +807,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:performed_ods_code) { should eq "B12345" }
         its(:nhs_immunisations_api_primary_source) { should be false }
 
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "955651000000100"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Influenza vaccination given by other healthcare provider (situation)"
+        end
+
         its(:notes) { should be_nil }
       end
 
@@ -813,6 +845,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:outcome) { should eq "administered" }
         its(:performed_ods_code) { should eq "B12345" }
 
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "884861000000100"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of first intranasal seasonal influenza vaccination"
+        end
+
         its(:notes) { should be_nil }
       end
 
@@ -840,6 +880,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:location_name) { should eq "B12345" }
         its(:outcome) { should eq "administered" }
         its(:performed_ods_code) { should eq "B12345" }
+
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "884861000000100"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of first intranasal seasonal influenza vaccination"
+        end
 
         its(:notes) { should be_nil }
       end
@@ -872,6 +920,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:location) { should be_nil }
         its(:location_name) { should eq "D83013" }
         its(:performed_ods_code) { should eq "D83013" }
+
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "985151000000100"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of first inactivated seasonal influenza vaccination"
+        end
 
         its(:notes) { should be_nil }
       end
@@ -908,6 +964,14 @@ describe FHIRMapper::VaccinationRecord do
 
         its(:location) { should be_nil }
         its(:location_name) { should eq "X99999" }
+
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "884861000000100"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of first intranasal seasonal influenza vaccination"
+        end
 
         its(:notes) { should be_nil }
       end
@@ -946,6 +1010,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:location) { should have_attributes(urn: "100006") }
         its(:location_name) { should be_nil }
 
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "884861000000100"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of first intranasal seasonal influenza vaccination"
+        end
+
         its(:notes) { should be_nil }
       end
 
@@ -979,6 +1051,9 @@ describe FHIRMapper::VaccinationRecord do
         its(:location_name) { should eq "B12345" }
         its(:outcome) { should eq "administered" }
         its(:performed_ods_code) { should eq "B12345" }
+
+        its(:nhs_immunisations_api_snomed_procedure_code) { should be_nil }
+        its(:nhs_immunisations_api_snomed_procedure_term) { should be_nil }
 
         its(:notes) { should be_nil }
       end
@@ -1025,6 +1100,14 @@ describe FHIRMapper::VaccinationRecord do
         its(:performed_ods_code) { should eq "R1L" }
         its(:nhs_immunisations_api_primary_source) { should be true }
 
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "761841000"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of vaccine product containing only Human papillomavirus antigen (procedure)"
+        end
+
         its(:notes) { should be_nil }
       end
     end
@@ -1070,6 +1153,16 @@ describe FHIRMapper::VaccinationRecord do
         its(:performed_ods_code) { should eq "R1L" }
         its(:nhs_immunisations_api_primary_source) { should be true }
 
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "871874000"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of vaccine product containing only " \
+                      "Neisseria meningitidis serogroup A, C, W135 and Y " \
+                      "antigens (procedure)"
+        end
+
         its(:notes) { should be_nil }
       end
     end
@@ -1114,6 +1207,16 @@ describe FHIRMapper::VaccinationRecord do
         its(:location_name) { should be_nil }
         its(:performed_ods_code) { should eq "R1L" }
         its(:nhs_immunisations_api_primary_source) { should be true }
+
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "866186002"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of vaccine product containing only " \
+                      "Clostridium tetani and Corynebacterium diphtheriae " \
+                      "and Human poliovirus antigens (procedure)"
+        end
 
         its(:notes) { should be_nil }
       end
@@ -1164,6 +1267,16 @@ describe FHIRMapper::VaccinationRecord do
         its(:performed_ods_code) { should eq "R1L" }
         its(:nhs_immunisations_api_primary_source) { should be true }
 
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "38598009"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of vaccine product containing only " \
+                      "Measles morbillivirus and Mumps orthorubulavirus " \
+                      "and Rubella virus antigens (procedure)"
+        end
+
         its(:notes) { should be_nil }
       end
     end
@@ -1212,6 +1325,16 @@ describe FHIRMapper::VaccinationRecord do
         its(:location_name) { should be_nil }
         its(:performed_ods_code) { should eq "R1L" }
         its(:nhs_immunisations_api_primary_source) { should be true }
+
+        its(:nhs_immunisations_api_snomed_procedure_code) do
+          should eq "432636005"
+        end
+
+        its(:nhs_immunisations_api_snomed_procedure_term) do
+          should eq "Administration of vaccine product containing only " \
+                      "Human alphaherpesvirus 3 and Measles morbillivirus " \
+                      "and Mumps orthorubulavirus and Rubella virus antigens"
+        end
 
         its(:notes) { should be_nil }
       end
