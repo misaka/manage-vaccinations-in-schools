@@ -300,6 +300,10 @@ en:
           do_not_want_vaccination_at_school: Do not want vaccination at school
           personal_choice: Personal choice
           will_be_vaccinated_elsewhere: Vaccine will be given elsewhere
+        reason_for_refusal_hints:
+          do_not_want_vaccination_at_school: >-
+            For example, you do not want your child to be vaccinated in a busy environment
+          will_be_vaccinated_elsewhere: "For example, you've booked your child into a clinic"
         responses:
           follow_up_requested: Follow-up requested
           given: Consent given

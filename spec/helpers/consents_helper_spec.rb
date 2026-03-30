@@ -4,13 +4,25 @@ describe ConsentsHelper do
   subject(:reasons) { helper.consent_refusal_reasons(consent) }
 
   describe "#consent_refusal_reasons" do
-    subject(:reasons) { helper.consent_refusal_reasons(consent).map(&:value) }
+    subject(:reasons) { helper.consent_refusal_reasons(consent) }
 
     context "with a ConsentForm for a school session" do
       let(:session) { create(:session, location: create(:school)) }
       let(:consent) { build(:consent_form, session:) }
 
-      it { should include("do_not_want_vaccination_at_school") }
+      it "includes do_not_want_vaccination_at_school" do
+        expect(reasons.map(&:value)).to include(
+          "do_not_want_vaccination_at_school"
+        )
+      end
+
+      it "includes the hint for do_not_want_vaccination_at_school" do
+        reason =
+          reasons.find { |r| r.value == "do_not_want_vaccination_at_school" }
+        expect(reason.hint).to eq(
+          "For example, you do not want your child to be vaccinated in a busy environment"
+        )
+      end
     end
 
     context "with a ConsentForm for a clinic session" do
@@ -18,7 +30,32 @@ describe ConsentsHelper do
       let(:consent) { build(:consent_form, session:) }
 
       it "does not include do_not_want_vaccination_at_school" do
-        expect(reasons).not_to include("do_not_want_vaccination_at_school")
+        expect(reasons.map(&:value)).not_to include(
+          "do_not_want_vaccination_at_school"
+        )
+      end
+    end
+
+    context "with any consent form" do
+      let(:session) { create(:session) }
+      let(:consent) { build(:consent_form, session:) }
+
+      it "includes the hint for will_be_vaccinated_elsewhere" do
+        reason = reasons.find { |r| r.value == "will_be_vaccinated_elsewhere" }
+        expect(reason.hint).to eq(
+          "For example, you've booked your child into a clinic"
+        )
+      end
+
+      it "does not include hints for other reasons" do
+        reasons_without_hints =
+          reasons.reject do |r|
+            %w[
+              will_be_vaccinated_elsewhere
+              do_not_want_vaccination_at_school
+            ].include?(r.value)
+          end
+        expect(reasons_without_hints.map(&:hint)).to all(be_nil)
       end
     end
   end
