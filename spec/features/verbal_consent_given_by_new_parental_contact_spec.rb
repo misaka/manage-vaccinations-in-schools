@@ -5,24 +5,56 @@ describe "Verbal consent" do
 
   before { given_i_am_signed_in }
 
-  scenario "Given by a new mother parent contact" do
-    when_i_start_recording_consent_from_a_new_parental_contact
-    and_i_enter_a_mum_relationship
-    and_i_record_that_verbal_consent_was_given
-    then_an_email_is_sent_to_the_parent_confirming_their_consent
-    and_i_can_see_the_parents_details_on_the_consent_response(
-      relationship: "Mum"
-    )
+  context "when the patient_contacts feature flag is OFF" do
+    before { Flipper.disable(:patient_contacts) }
+
+    scenario "Given by a new mother parent contact" do
+      when_i_start_recording_consent_from_a_new_parental_contact
+      then_i_see_the_new_parent_form
+      and_i_enter_a_mum_parent
+      and_i_record_that_verbal_consent_was_given
+      then_an_email_is_sent_to_the_parent_confirming_their_consent
+      and_i_can_see_the_parents_details_on_the_consent_response(
+        relationship: "Mum"
+      )
+    end
+
+    scenario "Given by a new other parent contact" do
+      when_i_start_recording_consent_from_a_new_parental_contact
+      then_i_see_the_new_parent_form
+      and_i_enter_an_other_parent
+      and_i_record_that_verbal_consent_was_given
+      then_an_email_is_sent_to_the_parent_confirming_their_consent
+      and_i_can_see_the_parents_details_on_the_consent_response(
+        relationship: "Other – Carer"
+      )
+    end
   end
 
-  scenario "Given by a new other parent contact" do
-    when_i_start_recording_consent_from_a_new_parental_contact
-    and_i_enter_an_other_relationship
-    and_i_record_that_verbal_consent_was_given
-    then_an_email_is_sent_to_the_parent_confirming_their_consent
-    and_i_can_see_the_parents_details_on_the_consent_response(
-      relationship: "Other – Carer"
-    )
+  context "when the patient_contacts feature flag is ON" do
+    before { Flipper.enable(:patient_contacts) }
+
+    scenario "Given by a new mother parent contact" do
+      when_i_start_recording_consent_from_a_new_parental_contact
+      then_i_see_the_new_contact_form
+      and_i_enter_a_mum_contact
+      and_i_record_that_verbal_consent_was_given
+      then_an_email_is_sent_to_the_parent_confirming_their_consent
+      and_i_can_see_the_parents_details_on_the_consent_response(
+        relationship: "Mum"
+      )
+    end
+
+    scenario "Given by a new other parent contact" do
+      when_i_start_recording_consent_from_a_new_parental_contact
+      then_i_see_the_new_contact_form
+      and_i_enter_an_other_contact
+      and_i_record_that_verbal_consent_was_given
+      then_an_email_is_sent_to_the_parent_confirming_their_consent
+      and_i_can_see_the_parents_details_on_the_consent_response(
+        relationship: "Other – Carer"
+      )
+    end
   end
 
   def given_i_am_signed_in
@@ -46,7 +78,15 @@ describe "Verbal consent" do
     click_button "Continue"
   end
 
-  def and_i_enter_a_mum_relationship
+  def then_i_see_the_new_parent_form
+    expect(page).to have_content("Details for parent or guardian")
+  end
+
+  def then_i_see_the_new_contact_form
+    expect(page).to have_content("Details for parent or guardian")
+  end
+
+  def and_i_enter_a_mum_parent
     fill_in "Full name", with: "Jane Smith"
     choose "Mum"
     fill_in "Email address", with: "jsmith@example.com"
@@ -55,7 +95,35 @@ describe "Verbal consent" do
     click_button "Continue"
   end
 
-  def and_i_enter_an_other_relationship
+  def and_i_enter_a_mum_contact
+    fill_in "Full name", with: "Jane Smith"
+    choose "Mum"
+    fill_in "Email address", with: "jsmith@example.com"
+    fill_in "Phone number", with: "07987654321"
+    check "Get updates by text"
+    click_button "Continue"
+  end
+
+  def and_i_enter_an_other_parent
+    fill_in "Full name", with: "Jane Smith"
+    choose "Other"
+
+    click_button "Continue"
+    expect(page).to have_content("Enter a relationship")
+    expect(page).to have_content(
+      "Choose whether there is parental responsibility"
+    )
+
+    fill_in "Relationship to the child", with: "Carer"
+    choose "Yes"
+
+    fill_in "Email address", with: "jsmith@example.com"
+    fill_in "Phone number", with: "07987654321"
+    check "Get updates by text"
+    click_button "Continue"
+  end
+
+  def and_i_enter_an_other_contact
     fill_in "Full name", with: "Jane Smith"
     choose "Other"
 
