@@ -125,6 +125,10 @@ module FHIRMapper
         attrs[:dose_sequence] = dose_sequence
       end
 
+      reason_coding = reason_coding_from_fhir(fhir_record)
+      attrs[:nhs_immunisations_api_snomed_reason_code] = reason_coding&.code
+      attrs[:nhs_immunisations_api_snomed_reason_term] = reason_coding&.display
+
       attrs[:vaccine] = Vaccine.from_fhir_record(fhir_record)
       attrs[:batch_number] = fhir_record.lotNumber&.to_s
       attrs[:batch_expiry] = fhir_record.expirationDate&.to_date
@@ -333,6 +337,12 @@ module FHIRMapper
         &.valueCodeableConcept
         &.coding
         &.find { it.system == "http://snomed.info/sct" }
+    end
+
+    private_class_method def self.reason_coding_from_fhir(fhir_record)
+      fhir_record.reasonCode&.first&.coding&.find do
+        it.system == "http://snomed.info/sct"
+      end
     end
 
     def fhir_reason_code
