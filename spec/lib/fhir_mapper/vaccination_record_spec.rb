@@ -594,6 +594,10 @@ describe FHIRMapper::VaccinationRecord do
           should eq "Seasonal influenza vaccination 111 (procedure)"
         end
 
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-03-12T13:28:17.12+00:00")
+        end
+
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "453684005" }
 
         its(:nhs_immunisations_api_snomed_reason_term) do
@@ -638,6 +642,10 @@ describe FHIRMapper::VaccinationRecord do
         its(:location_name) { should be_nil }
         its(:performed_ods_code) { should eq "B0C4P" }
         its(:nhs_immunisations_api_primary_source) { should be true }
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-03-12T13:28:17.12+00:00")
+        end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "453684005" }
 
@@ -686,6 +694,10 @@ describe FHIRMapper::VaccinationRecord do
         its(:location) { should have_attributes(urn: "100006") }
         its(:location_name) { should be_nil }
         its(:performed_ods_code) { should eq "B0C4P" }
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-03-12T13:28:17.12+00:00")
+        end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "453684005" }
 
@@ -744,6 +756,10 @@ describe FHIRMapper::VaccinationRecord do
           should eq "Influenza vaccination given by other healthcare provider (situation)"
         end
 
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.zone.parse("2025-10-07")
+        end
+
         its(:nhs_immunisations_api_snomed_reason_code) { should be_nil }
         its(:nhs_immunisations_api_snomed_reason_term) { should be_nil }
 
@@ -788,6 +804,10 @@ describe FHIRMapper::VaccinationRecord do
 
         its(:nhs_immunisations_api_snomed_procedure_term) do
           should eq "Administration of first intranasal seasonal influenza vaccination"
+        end
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-03-12T13:28:17.12+00:00")
         end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "453684005" }
@@ -842,6 +862,10 @@ describe FHIRMapper::VaccinationRecord do
           should eq "Influenza vaccination given by other healthcare provider (situation)"
         end
 
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.zone.parse("2025-09-08")
+        end
+
         its(:nhs_immunisations_api_snomed_reason_code) { should be_nil }
         its(:nhs_immunisations_api_snomed_reason_term) { should be_nil }
 
@@ -883,6 +907,10 @@ describe FHIRMapper::VaccinationRecord do
           should eq "Administration of first intranasal seasonal influenza vaccination"
         end
 
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.zone.parse("2025-10-09")
+        end
+
         its(:nhs_immunisations_api_snomed_reason_code) { should be_nil }
         its(:nhs_immunisations_api_snomed_reason_term) { should be_nil }
 
@@ -920,6 +948,10 @@ describe FHIRMapper::VaccinationRecord do
 
         its(:nhs_immunisations_api_snomed_procedure_term) do
           should eq "Administration of first intranasal seasonal influenza vaccination"
+        end
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.zone.parse("2025-10-09")
         end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should be_nil }
@@ -963,6 +995,10 @@ describe FHIRMapper::VaccinationRecord do
 
         its(:nhs_immunisations_api_snomed_procedure_term) do
           should eq "Administration of first inactivated seasonal influenza vaccination"
+        end
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.zone.parse("2025-09-22")
         end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should be_nil }
@@ -1010,6 +1046,10 @@ describe FHIRMapper::VaccinationRecord do
 
         its(:nhs_immunisations_api_snomed_procedure_term) do
           should eq "Administration of first intranasal seasonal influenza vaccination"
+        end
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-08-28T11:45:36.835000+01:00")
         end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "723620004" }
@@ -1060,6 +1100,10 @@ describe FHIRMapper::VaccinationRecord do
           should eq "Administration of first intranasal seasonal influenza vaccination"
         end
 
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-10-06T07:58:02.836000+01:00")
+        end
+
         its(:nhs_immunisations_api_snomed_reason_code) { should be_nil }
         its(:nhs_immunisations_api_snomed_reason_term) { should be_nil }
 
@@ -1099,6 +1143,10 @@ describe FHIRMapper::VaccinationRecord do
 
         its(:nhs_immunisations_api_snomed_procedure_code) { should be_nil }
         its(:nhs_immunisations_api_snomed_procedure_term) { should be_nil }
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.zone.parse("2025-09-08")
+        end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should be_nil }
         its(:nhs_immunisations_api_snomed_reason_term) { should be_nil }
@@ -1154,6 +1202,10 @@ describe FHIRMapper::VaccinationRecord do
 
         its(:nhs_immunisations_api_snomed_procedure_term) do
           should eq "Administration of vaccine product containing only Human papillomavirus antigen (procedure)"
+        end
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-11-03T15:30:38.707000+00:00")
         end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "723620004" }
@@ -1214,6 +1266,10 @@ describe FHIRMapper::VaccinationRecord do
                       "antigens (procedure)"
         end
 
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-11-03T15:31:11.610000+00:00")
+        end
+
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "723620004" }
         its(:nhs_immunisations_api_snomed_reason_term) { should be_nil }
 
@@ -1270,6 +1326,10 @@ describe FHIRMapper::VaccinationRecord do
           should eq "Administration of vaccine product containing only " \
                       "Clostridium tetani and Corynebacterium diphtheriae " \
                       "and Human poliovirus antigens (procedure)"
+        end
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-11-03T15:31:42.228000+00:00")
         end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "723620004" }
@@ -1334,6 +1394,10 @@ describe FHIRMapper::VaccinationRecord do
                       "and Rubella virus antigens (procedure)"
         end
 
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-11-03T15:11:15.346000+00:00")
+        end
+
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "723620004" }
         its(:nhs_immunisations_api_snomed_reason_term) { should be_nil }
 
@@ -1394,6 +1458,10 @@ describe FHIRMapper::VaccinationRecord do
           should eq "Administration of vaccine product containing only " \
                       "Human alphaherpesvirus 3 and Measles morbillivirus " \
                       "and Mumps orthorubulavirus and Rubella virus antigens"
+        end
+
+        its(:nhs_immunisations_api_recorded_at) do
+          should eq Time.parse("2025-01-27T08:50:53.257000+00:00")
         end
 
         its(:nhs_immunisations_api_snomed_reason_code) { should eq "723620004" }
