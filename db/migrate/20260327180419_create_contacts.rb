@@ -13,8 +13,10 @@ class CreateContacts < ActiveRecord::Migration[8.1]
       t.string :full_name, null: false
       t.string :email
       t.string :phone
+      t.boolean :phone_receive_updates, default: false, null: false
       t.enum :relationship, null: false, enum_type: "contact_relationship"
       t.enum :source, null: false, enum_type: "contact_source"
+      t.string :relationship_other_name
       t.timestamps
     end
 

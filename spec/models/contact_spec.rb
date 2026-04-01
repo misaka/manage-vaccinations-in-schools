@@ -4,16 +4,18 @@
 #
 # Table name: contacts
 #
-#  id           :bigint           not null, primary key
-#  email        :string
-#  full_name    :string           not null
-#  phone        :string
-#  relationship :enum             not null
-#  source       :enum             not null
-#  type         :enum             not null
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  patient_id   :bigint           not null
+#  id                      :bigint           not null, primary key
+#  email                   :string
+#  full_name               :string           not null
+#  phone                   :string
+#  phone_receive_updates   :boolean          default(FALSE), not null
+#  relationship            :enum             not null
+#  relationship_other_name :string
+#  source                  :enum             not null
+#  type                    :enum             not null
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  patient_id              :bigint           not null
 #
 # Indexes
 #
