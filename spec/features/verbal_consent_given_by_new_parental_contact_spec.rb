@@ -39,8 +39,8 @@ describe "Verbal consent" do
       then_i_see_the_new_contact_form
       and_i_enter_a_mum_contact
       and_i_record_that_verbal_consent_was_given
-      then_an_email_is_sent_to_the_parent_confirming_their_consent
-      and_i_can_see_the_parents_details_on_the_consent_response(
+      then_an_email_is_sent_to_the_contact_confirming_their_consent
+      and_i_can_see_the_contacts_details_on_the_consent_response(
         relationship: "Mum"
       )
     end
@@ -50,8 +50,8 @@ describe "Verbal consent" do
       then_i_see_the_new_contact_form
       and_i_enter_an_other_contact
       and_i_record_that_verbal_consent_was_given
-      then_an_email_is_sent_to_the_parent_confirming_their_consent
-      and_i_can_see_the_parents_details_on_the_consent_response(
+      then_an_email_is_sent_to_the_contact_confirming_their_consent
+      and_i_can_see_the_contacts_details_on_the_consent_response(
         relationship: "Other – Carer"
       )
     end
@@ -181,8 +181,21 @@ describe "Verbal consent" do
     expect(page).to have_content(["Phone number", "07987 654321"].join("\n"))
   end
 
+  def and_i_can_see_the_contacts_details_on_the_consent_response(*)
+    click_link @patient.full_name, match: :first
+    click_link "Jane Smith"
+
+    expect(page).to have_content("Consent response from Jane Smith")
+
+    # TODO: Assert that the contact's details are visible on the consent response page
+  end
+
   def then_an_email_is_sent_to_the_parent_confirming_their_consent
     expect_email_to("jsmith@example.com", :consent_confirmation_given)
+  end
+
+  def then_an_email_is_sent_to_the_contact_confirming_their_consent
+    # TODO: Assert that the new contact was sent an email
   end
 
   def and_i_a_text_is_sent_to_the_parent_confirming_their_consent

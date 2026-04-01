@@ -20,6 +20,14 @@ class DraftConsent
   attribute :notes, :string
   attribute :notify_parent_on_refusal, :boolean
   attribute :notify_parents_on_vaccination, :boolean
+  attribute :contact_email, :string
+  attribute :contact_full_name, :string
+  attribute :contact_id, :integer
+  attribute :contact_phone, :string
+  attribute :contact_phone_receive_updates, :boolean
+  attribute :contact_relationship_other_name, :string
+  attribute :contact_relationship_type, :string
+  attribute :contact_responsibility, :boolean
   attribute :parent_email, :string
   attribute :parent_full_name, :string
   attribute :parent_id, :integer
@@ -55,7 +63,16 @@ class DraftConsent
   def wizard_steps
     [
       (:who unless follow_up_flow?),
-      (:parent_details unless via_self_consent?),
+      (
+        if !via_self_consent? && !Flipper.enabled?(:patient_contacts)
+          :parent_details
+        end
+      ),
+      (
+        if !via_self_consent? && Flipper.enabled?(:patient_contacts)
+          :contact_details
+        end
+      ),
       (:route unless via_self_consent?),
       (:mmrv_vaccine_availability if eligible_for_mmrv?),
       :agree,
@@ -75,6 +92,10 @@ class DraftConsent
 
   on_wizard_step :parent_details, exact: true do
     validates :parent_phone_receive_updates, inclusion: { in: [true, false] }
+  end
+
+  on_wizard_step :contact_details, exact: true do
+    validates :contact_phone_receive_updates, inclusion: { in: [true, false] }
   end
 
   validates :parent_email,
@@ -106,6 +127,14 @@ class DraftConsent
               }
   end
 
+  with_options if: -> { required_for_step?(:contact_details, exact: true) } do
+    validates :contact_full_name, presence: true
+    validates :contact_relationship_type,
+              inclusion: {
+                in: ParentRelationship.types.keys - %w[unknown]
+              }
+  end
+
   with_options if: -> do
                  parent_relationship_type == "other" &&
                    required_for_step?(:parent_details, exact: true)
@@ -116,6 +145,18 @@ class DraftConsent
                 maximum: 300
               }
     validates :parent_responsibility, inclusion: [true]
+  end
+
+  with_options if: -> do
+                 contact_relationship_type == "other" &&
+                   required_for_step?(:contact_details, exact: true)
+               end do
+    validates :contact_relationship_other_name,
+              presence: true,
+              length: {
+                maximum: 300
+              }
+    validates :contact_responsibility, inclusion: [true]
   end
 
   on_wizard_step :route, exact: true do
@@ -284,6 +325,35 @@ class DraftConsent
     self.parent_responsibility = value ? true : nil
   end
 
+  def contact
+    return nil if via_self_consent?
+
+    contact = Contact.find_by(id: contact_id) || Contact.new
+
+    contact.email = contact_email
+    contact.full_name = contact_full_name
+    contact.phone = contact_phone
+    # contact.phone_receive_updates = contact_phone_receive_updates
+
+    # contact.patient = patient,
+    # contact.type = contact_relationship_type,
+    # contact.other_name = contact_relationship_other_name
+
+    contact
+  end
+
+  def contact=(value)
+    self.contact_id = value&.id
+
+    self.contact_email = patient.restricted? ? "" : value&.email
+    self.contact_full_name = value&.full_name
+    self.contact_phone = patient.restricted? ? "" : value&.phone
+    # self.contact_phone_receive_updates = value&.phone_receive_updates
+    # self.contact_relationship_type = value&.type
+    # self.contact_relationship_other_name = value&.other_name
+    self.contact_responsibility = value ? true : nil
+  end
+
   def patient
     return nil if patient_id.nil?
 
@@ -323,13 +393,23 @@ class DraftConsent
     self.response = "given" if flu_response?
     super(consent)
 
+    if Flipper.enabled?(:patient_contacts)
+      consent.parent_full_name = contact_full_name
+      consent.parent_email = contact_email
+      consent.parent_phone = contact_phone
+      consent.parent_phone_receive_updates = contact_phone_receive_updates
+      consent.parent_relationship_type = contact_relationship_type
+      consent.parent_relationship_other_name = contact_relationship_other_name
+    else
+      consent.parent_full_name = parent_full_name
+      consent.parent_email = parent_email
+      consent.parent_phone = parent_phone
+      consent.parent_phone_receive_updates = parent_phone_receive_updates
+      consent.parent_relationship_type = parent_relationship_type
+      consent.parent_relationship_other_name = parent_relationship_other_name
+    end
+
     consent.parent = parent
-    consent.parent_full_name = parent_full_name
-    consent.parent_email = parent_email
-    consent.parent_phone = parent_phone
-    consent.parent_phone_receive_updates = parent_phone_receive_updates
-    consent.parent_relationship_type = parent_relationship_type
-    consent.parent_relationship_other_name = parent_relationship_other_name
     consent.submitted_at ||= Time.current
     consent.academic_year = academic_year if academic_year.present?
 

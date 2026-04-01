@@ -8,6 +8,7 @@ class DraftConsentsController < ApplicationController
   before_action :set_session
   before_action :set_programme
   before_action :set_parent
+  before_action :set_contact
   before_action :set_consent
 
   include WizardControllerConcern
@@ -69,7 +70,9 @@ class DraftConsentsController < ApplicationController
     ActiveRecord::Base.transaction do
       @triage = @triage_form&.save! if @draft_consent.response_given?
 
-      if (parent = @consent.parent)
+      if Flipper.enabled?(:patient_contacts)
+        # TODO: Insert or update the contact
+      elsif (parent = @consent.parent)
         parent.save! if parent.changed?
         parent.parent_relationships.select(&:changed?).each(&:save!)
       end
@@ -162,6 +165,15 @@ class DraftConsentsController < ApplicationController
         parent_relationship_type
         parent_responsibility
       ],
+      contact_details: %i[
+        contact_email
+        contact_full_name
+        contact_phone
+        contact_phone_receive_updates
+        contact_relationship_other_name
+        contact_relationship_type
+        contact_responsibility
+      ],
       questions: questions_params,
       reason_for_refusal: %i[reason_for_refusal],
       route: %i[route],
@@ -203,6 +215,10 @@ class DraftConsentsController < ApplicationController
 
   def set_parent
     @parent = @draft_consent.parent
+  end
+
+  def set_contact
+    @contact = @draft_consent.contact
   end
 
   def set_consent

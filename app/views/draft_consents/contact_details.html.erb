@@ -1,0 +1,60 @@
+<% content_for :navigation do %>
+  <%= govuk_back_link(href: @back_link_path) %>
+<% end %>
+
+<% page_title = if @draft_consent.contact_full_name.present?
+       "Details for #{@draft_consent.contact_full_name}"
+     else
+       "Details for parent or guardian"
+     end %>
+
+<%= h1 page_title: do %>
+  <span class="nhsuk-caption-l">
+    <%= @contact.label %>
+  </span>
+  <%= page_title %>
+<% end %>
+
+<%= form_with model: @draft_consent, url: wizard_path, method: :put do |f| %>
+  <%= f.mavis_error_summary %>
+
+  <%= f.govuk_text_field :contact_full_name, label: { text: "Full name" } %>
+
+  <%= f.govuk_radio_buttons_fieldset :contact_relationship_type,
+                                     legend: { size: "s",
+                                               text: "Relationship to the child" } do %>
+    <%= f.govuk_radio_button :contact_relationship_type, "mother",
+                             label: { text: "Mum" }, link_errors: true %>
+    <%= f.govuk_radio_button :contact_relationship_type, "father",
+                             label: { text: "Dad" } %>
+    <%= f.govuk_radio_button :contact_relationship_type, "guardian",
+                             label: { text: "Guardian" } %>
+    <%= f.govuk_radio_button :contact_relationship_type, "other",
+                             label: { text: "Other" } do %>
+      <p>They need parental responsibility to give consent.</p>
+      <%= f.govuk_text_field :contact_relationship_other_name,
+                             label: { text: "Relationship to the child" },
+                             hint: { text: "For example, carer" } %>
+
+      <%= f.govuk_radio_buttons_fieldset :contact_responsibility,
+                                         legend: { size: "s",
+                                                   text: "Do they have parental responsibility?" },
+                                         hint: { text: "They have the legal rights and duties relating to the child" } do %>
+        <%= f.govuk_radio_button :contact_responsibility, "true",
+                                 label: { text: "Yes" }, link_errors: true %>
+        <%= f.govuk_radio_button :contact_responsibility, "false",
+                                 label: { text: "No" } %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= f.govuk_email_field :contact_email, label: { text: "Email address" } %>
+
+  <%= f.govuk_phone_field :contact_phone, label: { text: "Phone number" } %>
+
+  <%= f.govuk_check_boxes_fieldset :contact_phone_receive_updates, multiple: false, legend: nil do %>
+    <%= f.govuk_check_box :contact_phone_receive_updates, 1, 0, multiple: false, link_errors: true, label: { text: "Get updates by text message" } %>
+  <% end %>
+
+  <%= f.govuk_submit "Continue" %>
+<% end %>

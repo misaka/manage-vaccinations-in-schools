@@ -41,6 +41,27 @@ en:
               too_long: Enter notes that are less than %{count} characters long
             outcome:
               blank: Choose an outcome
+            contact_email:
+              blank: Enter an email address
+              invalid: Enter a valid email address, such as j.doe@gmail.com
+              too_long: Enter a email address that is less than 300 characters long
+            contact_full_name:
+              blank: Enter a name
+              too_long: Enter a name that is less than 300 characters long
+            contact_responsibility:
+              inclusion: Choose whether there is parental responsibility
+            contact_phone:
+              blank: Enter a phone number
+              invalid: Enter a valid phone number, like 07700 900 000
+              too_long: Enter a phone number that is less than 300 characters long
+            contact_phone_receive_updates:
+              inclusion: Choose whether to send updates by text message
+            contact_relationship_type:
+              blank: Choose a relationship
+              inclusion: Choose a relationship
+            contact_relationship_other_name:
+              blank: Enter a relationship
+              too_long: Enter a relationship that is less than 300 characters long
             parent_email:
               blank: Enter an email address
               invalid: Enter a valid email address, such as j.doe@gmail.com
