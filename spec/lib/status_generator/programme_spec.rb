@@ -19,7 +19,8 @@ describe StatusGenerator::Programme do
       vaccination_records: patient.vaccination_records.order_by_performed_at,
       parents: patient.parents,
       consent_notifications:
-        patient.consent_notifications.includes(session: :team_location)
+        patient.consent_notifications.includes(session: :team_location),
+      notify_log_entries: patient.notify_log_entries
     )
   end
 
