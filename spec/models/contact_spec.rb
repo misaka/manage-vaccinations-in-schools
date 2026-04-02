@@ -5,6 +5,7 @@
 # Table name: contacts
 #
 #  id                      :bigint           not null, primary key
+#  contact_method          :enum             not null
 #  email                   :string
 #  full_name               :string           not null
 #  phone                   :string
@@ -12,7 +13,6 @@
 #  relationship            :enum             not null
 #  relationship_other_name :string
 #  source                  :enum             not null
-#  type                    :enum             not null
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
 #  patient_id              :bigint           not null

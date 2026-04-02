@@ -17,9 +17,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_075335) do
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "contact_method", ["phone", "email"]
   create_enum "contact_relationship", ["father", "guardian", "mother", "other", "unknown"]
   create_enum "contact_source", ["child_record", "class_list", "consent_response", "sais"]
-  create_enum "contact_type", ["phone", "email"]
   create_enum "disease_type", ["diphtheria", "human_papillomavirus", "influenza", "measles", "meningitis_a", "meningitis_c", "meningitis_w", "meningitis_y", "mumps", "polio", "rubella", "tetanus", "varicella"]
   create_enum "programme_type", ["flu", "hpv", "menacwy", "mmr", "td_ipv"]
 
@@ -350,6 +350,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_075335) do
   end
 
   create_table "contacts", force: :cascade do |t|
+    t.enum "contact_method", null: false, enum_type: "contact_method"
     t.datetime "created_at", null: false
     t.string "email"
     t.string "full_name", null: false
@@ -359,7 +360,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_075335) do
     t.enum "relationship", null: false, enum_type: "contact_relationship"
     t.string "relationship_other_name"
     t.enum "source", null: false, enum_type: "contact_source"
-    t.enum "type", null: false, enum_type: "contact_type"
     t.datetime "updated_at", null: false
     t.index ["patient_id", "email"], name: "index_contacts_on_patient_id_and_email", unique: true
     t.index ["patient_id", "phone"], name: "index_contacts_on_patient_id_and_phone", unique: true

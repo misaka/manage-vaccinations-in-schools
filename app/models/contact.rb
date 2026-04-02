@@ -5,6 +5,7 @@
 # Table name: contacts
 #
 #  id                      :bigint           not null, primary key
+#  contact_method          :enum             not null
 #  email                   :string
 #  full_name               :string           not null
 #  phone                   :string
@@ -12,7 +13,6 @@
 #  relationship            :enum             not null
 #  relationship_other_name :string
 #  source                  :enum             not null
-#  type                    :enum             not null
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
 #  patient_id              :bigint           not null
@@ -34,22 +34,22 @@ class Contact < ApplicationRecord
   validates :full_name, presence: true
   validates :relationship, presence: true
   validates :source, presence: true
-  validates :type, presence: true
+  validates :contact_method, presence: true
 
   validates :email, notify_safe_email: { allow_blank: true }
 
   validates :email, uniqueness: { scope: :patient_id }, allow_blank: true
   validates :phone, uniqueness: { scope: :patient_id }, allow_blank: true
 
-  validates :phone, presence: { if: -> { type == "phone" } }
-  validates :email, presence: { if: -> { type == "email" } }
+  validates :phone, presence: { if: -> { phone? } }
+  validates :email, presence: { if: -> { email? } }
 
   encrypts :email, :full_name, :phone, deterministic: true
 
   normalizes :email, with: EmailAddressNormaliser.new
   normalizes :phone, with: PhoneNumberNormaliser.new
 
-  enum :type, { phone: "phone", email: "email" }
+  enum :contact_method, { phone: "phone", email: "email" }
   enum :relationship,
        {
          father: "father",
