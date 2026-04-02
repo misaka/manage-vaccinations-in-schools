@@ -18,7 +18,27 @@
 <%= form_with model: @draft_consent, url: wizard_path, method: :put do |f| %>
   <%= f.mavis_error_summary %>
 
-  <%= f.govuk_text_field :contact_full_name, label: { text: "Full name" } %>
+  <%= f.govuk_radio_buttons_fieldset :contact_type,
+                                     legend: { size: "s",
+                                               text: "What is the contact method?" },
+                                     hint: { text: "If you need to add both a phone number and email address create two contacts" } do %>
+    <%= f.govuk_radio_button :contact_type, "email", label: { text: "Email" }, link_errors: true do %>
+      <%= f.govuk_email_field :contact_email, label: { text: "Email address" } %>
+    <% end %>
+    <%= f.govuk_radio_button :contact_type, "phone", label: { text: "Phone" } do %>
+      <%= f.govuk_phone_field :contact_phone, label: { text: "Phone number" } %>
+      <%= f.govuk_check_boxes_fieldset :contact_phone_receive_updates, multiple: false, legend: nil do %>
+        <%= f.govuk_check_box :contact_phone_receive_updates, 1, 0, multiple: false, link_errors: true, label: { text: "Get updates by text message" } %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= f.govuk_fieldset legend: { size: "s", text: "Parent details" } do %>
+    <%= f.govuk_text_field(
+          :contact_full_name,
+          label: { text: "Full name" },
+        ) %>
+  <% end %>
 
   <%= f.govuk_radio_buttons_fieldset :contact_relationship_type,
                                      legend: { size: "s",
@@ -46,14 +66,6 @@
                                  label: { text: "No" } %>
       <% end %>
     <% end %>
-  <% end %>
-
-  <%= f.govuk_email_field :contact_email, label: { text: "Email address" } %>
-
-  <%= f.govuk_phone_field :contact_phone, label: { text: "Phone number" } %>
-
-  <%= f.govuk_check_boxes_fieldset :contact_phone_receive_updates, multiple: false, legend: nil do %>
-    <%= f.govuk_check_box :contact_phone_receive_updates, 1, 0, multiple: false, link_errors: true, label: { text: "Get updates by text message" } %>
   <% end %>
 
   <%= f.govuk_submit "Continue" %>
