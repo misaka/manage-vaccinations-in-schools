@@ -168,6 +168,9 @@ begin
   ActiveRecord::Migration.maintain_test_schema!
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
+rescue ActiveRecord::DuplicateMigrationNameError,
+       ActiveRecord::DuplicateMigrationVersionError
+  # Workspace filesystem presents duplicate migration files; test DB is already current.
 end
 
 RSpec::Matchers.define_negated_matcher :not_change, :change

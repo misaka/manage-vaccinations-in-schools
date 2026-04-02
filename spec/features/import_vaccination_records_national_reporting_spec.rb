@@ -79,14 +79,17 @@ describe("National reporting immunisation imports") do
         given_i_am_signed_in_as_a_national_reporting_user
         when_i_navigate_to_the_upload_page
         expect(page).to have_css(".nhsuk-notification-banner")
-        expect(page).to have_content("20 April 2026")
-        expect(page).to have_content("Check where to upload records")
         expect(page).to have_content(
-          "before 20 April 2026 must be uploaded to NIVS by the end of today"
+          "Mavis national reporting replaces NIVS on 20 April 2026"
+        )
+        expect(page).to have_content("Vaccinations given before 20 April 2026")
+        expect(page).to have_content(
+          "Upload to NIVS by 20 April 2026. After this, NIVS will no longer be available."
         )
         expect(page).to have_content(
-          "on or after 20 April 2026 must be uploaded to Mavis national reporting only"
+          "Vaccinations given on or after 20 April 2026"
         )
+        expect(page).to have_content("Upload to Mavis national reporting only.")
       end
     end
   end
