@@ -150,12 +150,4 @@ module VaccinationRecord::NHSImmunisationsAPISync
 
     SyncVaccinationRecordToNHSJob.perform_async(id)
   end
-
-  def sync_to_nhs_immunisations_api!
-    touch_nhs_immunisations_api_sync_pending_at
-    save!
-
-    # The after_commit callback queues the job to actually perform the sync
-    # with the API.
-  end
 end
