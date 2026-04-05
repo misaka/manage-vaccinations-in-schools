@@ -1,8 +1,6 @@
 import argparse
 
-import get_file
-import put_file
-import shell
+from mavis_server import get_file, put_file, shell
 
 
 def main():

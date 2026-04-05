@@ -1,6 +1,6 @@
 import sys
 
-import ecs
+from mavis_server import ecs
 
 
 def register(subparsers):
