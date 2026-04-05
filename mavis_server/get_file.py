@@ -23,10 +23,14 @@ def register(subparsers):
         default=None,
         help="Local destination (file or directory). Defaults to current directory.",
     )
+    parser.add_argument("--service", help="Override the ECS service name")
+    parser.add_argument("--task-id", dest="task_id", help="Connect to a specific task by ID")
+    parser.add_argument("--task-ip", dest="task_ip", help="Connect to a task by its private IPv4 address")
     parser.add_argument(
-        "--task-id",
-        dest="task_id",
-        help="Task ID to target (auto-resolved via the ops service)",
+        "-x", "--exit-without-login",
+        dest="exit_without_login",
+        action="store_true",
+        help="Exit instead of prompting for AWS SSO login",
     )
     parser.set_defaults(func=run)
 
@@ -35,9 +39,9 @@ def run(args):
     env = args.env
 
     ecs.confirm_production(env)
-    ecs.ensure_authenticated()
+    ecs.ensure_authenticated(exit_without_login=args.exit_without_login)
 
-    task_id = ecs.resolve_task_for_transfer(env, args.task_id)
+    task_id = ecs.resolve_task_for_transfer(env, args.task_id, args.task_ip, args.service)
     bucket = ecs.s3_bucket(env)
     key = f"temp-{secrets.token_hex(8)}"
     s3_uri = f"s3://{bucket}/{key}"

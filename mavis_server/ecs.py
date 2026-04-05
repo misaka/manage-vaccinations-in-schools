@@ -144,14 +144,15 @@ def ops_service(env):
     return f"mavis-{env}-ops"
 
 
-def resolve_task_for_transfer(env, task_id=None):
+def resolve_task_for_transfer(env, task_id=None, task_ip=None, service=None):
     """
     Resolve a task ID for file transfer operations.
 
-    Always targets the ops service (or data-replication service) so an
-    explicit --task-id is never required.
+    Defaults to the ops service when no specific task or service is given.
     """
-    short_id, _ = resolve_task(env, task_id=task_id, service=ops_service(env))
+    if service is None and task_id is None and task_ip is None:
+        service = ops_service(env)
+    short_id, _ = resolve_task(env, task_id=task_id, task_ip=task_ip, service=service)
     return short_id
 
 
