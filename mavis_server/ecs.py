@@ -61,99 +61,52 @@ def aws_json(*cmd):
 
 def resolve_task(env, task_id=None, task_ip=None, service=None):
     """
-    Resolve a task to (short_task_id, container_name).
+    Resolve to (short_task_id, container_name). Three mutually exclusive modes:
 
-    container_name is the name of the running 'application' container.
-    Returns None for container_name if no such container is found — callers
-    that require it (e.g. shell) should check and error accordingly.
+    - task_id  — validate the specific task is running
+    - task_ip  — search all running tasks in the cluster for a matching IP
+    - service  — return the first running task in the service; defaults to
+                 mavis-{env}-ops, or mavis-{env}-web for data-replication envs
     """
     cl = cluster(env)
 
     if task_id:
-        data = aws_json(
-            "ecs", "describe-tasks",
-            "--region", REGION,
-            "--cluster", cl,
-            "--tasks", task_id,
-        )
-        tasks = data.get("tasks", [])
-        if not tasks:
-            sys.exit(f"Error: Task {task_id} not found in cluster {cl}")
-        task = tasks[0]
-        if task["lastStatus"] != "RUNNING":
-            sys.exit(
-                f"Error: Task {task_id} is not running "
-                f"(status: {task['lastStatus']})"
-            )
-        return task_id, _application_container(task)
-
-    # Discover running tasks (optionally filtered by service)
-    list_cmd = [
-        "ecs", "list-tasks",
-        "--region", REGION,
-        "--cluster", cl,
-        "--desired-status", "RUNNING",
-    ]
-    if service:
-        list_cmd += ["--service-name", service]
-
-    task_arns = aws_json(*list_cmd).get("taskArns", [])
-    if not task_arns:
-        svc = f" for service {service}" if service else ""
-        sys.exit(f"Error: No running tasks found in cluster {cl}{svc}")
-
-    tasks = aws_json(
-        "ecs", "describe-tasks",
-        "--region", REGION,
-        "--cluster", cl,
-        "--tasks", *task_arns,
-    ).get("tasks", [])
+        tasks = aws_json(
+            "ecs", "describe-tasks", "--region", REGION, "--cluster", cl, "--tasks", task_id,
+        ).get("tasks", [])
+        if not tasks or tasks[0]["lastStatus"] != "RUNNING":
+            sys.exit(f"Error: Task {task_id} is not running in cluster {cl}")
+        return task_id, _application_container(tasks[0])
 
     if task_ip:
+        task_arns = aws_json(
+            "ecs", "list-tasks", "--region", REGION, "--cluster", cl, "--desired-status", "RUNNING",
+        ).get("taskArns", [])
+        if not task_arns:
+            sys.exit(f"Error: No running tasks found in cluster {cl}")
+        tasks = aws_json(
+            "ecs", "describe-tasks", "--region", REGION, "--cluster", cl, "--tasks", *task_arns,
+        ).get("tasks", [])
         for task in tasks:
             if _task_private_ip(task) == task_ip:
                 return _short_id(task), _application_container(task)
-        svc = f" for service {service}" if service else ""
-        sys.exit(
-            f"Error: No running task found with IP {task_ip} "
-            f"in cluster {cl}{svc}"
-        )
+        sys.exit(f"Error: No running task with IP {task_ip} found in cluster {cl}")
 
-    # Pick the first task that has a running application container
+    service = service or _default_service(env)
+    task_arns = aws_json(
+        "ecs", "list-tasks", "--region", REGION, "--cluster", cl,
+        "--service-name", service, "--desired-status", "RUNNING",
+    ).get("taskArns", [])
+    if not task_arns:
+        sys.exit(f"Error: No running tasks found in service {service}")
+    tasks = aws_json(
+        "ecs", "describe-tasks", "--region", REGION, "--cluster", cl, "--tasks", *task_arns,
+    ).get("tasks", [])
     for task in tasks:
         container = _application_container(task)
         if container:
             return _short_id(task), container
-
-    svc = f" for service {service}" if service else ""
-    sys.exit(
-        f"Error: No running tasks with a running 'application' container "
-        f"found in cluster {cl}{svc}"
-    )
-
-
-def ops_service(env):
-    """
-    Return the ops service name for an environment.
-
-    Data-replication envs use a dedicated service whose name matches the
-    cluster (no -ops suffix). All other envs use mavis-{env}-ops.
-    """
-    if env.endswith("data-replication"):
-        return cluster(env)
-    return f"mavis-{env}-ops"
-
-
-def resolve_task_for_transfer(env, task_id=None, task_ip=None, service=None):
-    """
-    Resolve a task ID for file transfer operations.
-
-    Defaults to the ops service when no specific task or service is given.
-    """
-    if service is None and task_id is None and task_ip is None:
-        service = ops_service(env)
-    short_id, _ = resolve_task(env, task_id=task_id, task_ip=task_ip, service=service)
-    return short_id
+    sys.exit(f"Error: No running tasks with an application container found in service {service}")
 
 
 def run_command(env, task_id, command, container=None, interactive=True):
@@ -173,6 +126,12 @@ def run_command(env, task_id, command, container=None, interactive=True):
 
 
 # --- private helpers ---
+
+def _default_service(env):
+    if env.endswith("data-replication"):
+        return f"mavis-{env}-web"
+    return f"mavis-{env}-ops"
+
 
 def _short_id(task):
     return task["taskArn"].split("/")[-1]
