@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from mavis_server import shell
+from mavis_server import put_file, shell
 
 
 def main():
@@ -11,6 +11,7 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    put_file.register(subparsers)
     shell.register(subparsers)
 
     args = parser.parse_args()
