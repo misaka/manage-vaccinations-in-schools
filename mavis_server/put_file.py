@@ -17,7 +17,12 @@ def register(subparsers):
     )
     parser.add_argument("env", help="Environment name (cluster will be mavis-ENV)")
     parser.add_argument("local_file", help="Path to the local file to upload")
-    parser.add_argument("remote_path", help="Destination path inside the container")
+    parser.add_argument(
+        "remote_path",
+        nargs="?",
+        default=None,
+        help="Destination path inside the container (defaults to /tmp/<filename>)",
+    )
     parser.add_argument(
         "--task-id",
         dest="task_id",
@@ -35,6 +40,8 @@ def run(args):
     ecs.confirm_production(env)
     ecs.ensure_authenticated()
 
+    remote_path = remote_path or f"/tmp/{os.path.basename(args.local_file)}"
+
     task_id = ecs.resolve_task_for_transfer(env, args.task_id)
     bucket = ecs.s3_bucket(env)
     key = f"temp-{secrets.token_hex(8)}"
@@ -48,11 +55,11 @@ def run(args):
         sys.exit("Error: Failed to upload file to S3")
 
     try:
-        print(f"Downloading from S3 into task {task_id} at {args.remote_path} ...")
+        print(f"Downloading from S3 into task {task_id} at {remote_path} ...")
         exit_code = ecs.run_command(
             env,
             task_id,
-            f"aws s3 cp {s3_uri} {args.remote_path} --region {ecs.REGION}",
+            f"aws s3 cp {s3_uri} {remote_path} --region {ecs.REGION}",
         )
     finally:
         subprocess.run(
