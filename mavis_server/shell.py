@@ -62,5 +62,5 @@ def _resolve_service(env, explicit_service, task_id, task_ip):
     if env.endswith("data-replication"):
         return None
     if env in ("qa", "production"):
-        return f"mavis-{env}-ops"
+        return ecs.ops_service(env)
     return f"mavis-{env}-web"

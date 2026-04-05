@@ -26,7 +26,7 @@ def register(subparsers):
     parser.add_argument(
         "--task-id",
         dest="task_id",
-        help="Task ID to target (auto-resolved for qa/production envs)",
+        help="Task ID to target (auto-resolved via the ops service)",
     )
     parser.set_defaults(func=run)
 
@@ -37,7 +37,7 @@ def run(args):
     ecs.confirm_production(env)
     ecs.ensure_authenticated()
 
-    task_id = _resolve_task_id(env, args.task_id)
+    task_id = ecs.resolve_task_for_transfer(env, args.task_id)
     bucket = ecs.s3_bucket(env)
     key = f"temp-{secrets.token_hex(8)}"
     s3_uri = f"s3://{bucket}/{key}"
@@ -68,20 +68,6 @@ def run(args):
 
     print(f"File successfully downloaded to {local_dest}")
 
-
-def _resolve_task_id(env, explicit_task_id):
-    """Return a task ID, auto-resolving the service for known environments."""
-    if explicit_task_id:
-        task_id, _ = ecs.resolve_task(env, task_id=explicit_task_id)
-        return task_id
-    if env in ("qa", "production"):
-        service = f"mavis-{env}-ops"
-    elif env == "production-data-replication":
-        service = "mavis-production-data-replication"
-    else:
-        sys.exit("Error: --task-id is required for this environment")
-    task_id, _ = ecs.resolve_task(env, service=service)
-    return task_id
 
 
 def _local_destination(remote_path, local_path):

@@ -132,6 +132,29 @@ def resolve_task(env, task_id=None, task_ip=None, service=None):
     )
 
 
+def ops_service(env):
+    """
+    Return the ops service name for an environment.
+
+    Data-replication envs use a dedicated service whose name matches the
+    cluster (no -ops suffix). All other envs use mavis-{env}-ops.
+    """
+    if env.endswith("data-replication"):
+        return cluster(env)
+    return f"mavis-{env}-ops"
+
+
+def resolve_task_for_transfer(env, task_id=None):
+    """
+    Resolve a task ID for file transfer operations.
+
+    Always targets the ops service (or data-replication service) so an
+    explicit --task-id is never required.
+    """
+    short_id, _ = resolve_task(env, task_id=task_id, service=ops_service(env))
+    return short_id
+
+
 def run_command(env, task_id, command, container=None, interactive=True):
     """Execute a command in an ECS task, returning the exit code."""
     cmd = [
