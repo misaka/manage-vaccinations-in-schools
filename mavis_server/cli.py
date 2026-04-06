@@ -1,6 +1,7 @@
 import argparse
+import sys
 
-from mavis_server import get_file, put_file, shell
+from mavis_server import ecs, get_file, put_file, shell
 
 
 def main():
@@ -15,4 +16,7 @@ def main():
     get_file.register(subparsers)
 
     args = parser.parse_args()
-    args.func(args)
+    try:
+        args.func(args)
+    except ecs.ECSError as e:
+        sys.exit(str(e))

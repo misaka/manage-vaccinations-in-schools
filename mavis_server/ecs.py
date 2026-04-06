@@ -1,9 +1,12 @@
 import json
 import subprocess
-import sys
 
 REGION = "eu-west-2"
 PRODUCTION_ENVS = {"production", "production-data-replication"}
+
+
+class ECSError(Exception):
+    pass
 
 
 def cluster(env):
@@ -25,20 +28,19 @@ def ensure_authenticated(exit_without_login=False):
     if result.returncode == 0:
         return
     if exit_without_login:
-        sys.exit(
-            "Error: Not authenticated with AWS. "
-            "Run 'aws sso login' and try again."
+        raise ECSError(
+            "Not authenticated with AWS. Run 'aws sso login' and try again."
         )
     print("Not authenticated with AWS. Attempting SSO login...")
     login = subprocess.run(["aws", "sso", "login"])
     if login.returncode != 0:
-        sys.exit("Error: AWS SSO login failed.")
+        raise ECSError("AWS SSO login failed.")
     recheck = subprocess.run(
         ["aws", "sts", "get-caller-identity"],
         capture_output=True,
     )
     if recheck.returncode != 0:
-        sys.exit("Error: Still not authenticated after SSO login.")
+        raise ECSError("Still not authenticated after SSO login.")
 
 
 def confirm_production(env):
@@ -46,16 +48,16 @@ def confirm_production(env):
     if env != "production":
         return
     print("Warning: You are about to operate on PRODUCTION (not data-replication).")
-    answer = input("Type 'yes' to continue: ").strip().lower()
-    if answer != "yes":
-        sys.exit("Aborted.")
+    answer = input("Type 'production' to continue: ").strip()
+    if answer != "production":
+        raise ECSError("Aborted.")
 
 
 def aws_json(*cmd):
     """Run an AWS CLI command and return parsed JSON output."""
     result = subprocess.run(["aws", *cmd], capture_output=True, text=True)
     if result.returncode != 0:
-        sys.exit(f"Error running 'aws {' '.join(cmd)}':\n{result.stderr.strip()}")
+        raise ECSError(f"aws {' '.join(cmd)}:\n{result.stderr.strip()}")
     return json.loads(result.stdout)
 
 
@@ -75,7 +77,7 @@ def resolve_task(env, task_id=None, task_ip=None, service=None):
             "ecs", "describe-tasks", "--region", REGION, "--cluster", cl, "--tasks", task_id,
         ).get("tasks", [])
         if not tasks or tasks[0]["lastStatus"] != "RUNNING":
-            sys.exit(f"Error: Task {task_id} is not running in cluster {cl}")
+            raise ECSError(f"Task {task_id} is not running in cluster {cl}")
         return task_id, _application_container(tasks[0])
 
     if task_ip:
@@ -83,14 +85,14 @@ def resolve_task(env, task_id=None, task_ip=None, service=None):
             "ecs", "list-tasks", "--region", REGION, "--cluster", cl, "--desired-status", "RUNNING",
         ).get("taskArns", [])
         if not task_arns:
-            sys.exit(f"Error: No running tasks found in cluster {cl}")
+            raise ECSError(f"No running tasks found in cluster {cl}")
         tasks = aws_json(
             "ecs", "describe-tasks", "--region", REGION, "--cluster", cl, "--tasks", *task_arns,
         ).get("tasks", [])
         for task in tasks:
             if _task_private_ip(task) == task_ip:
                 return _short_id(task), _application_container(task)
-        sys.exit(f"Error: No running task with IP {task_ip} found in cluster {cl}")
+        raise ECSError(f"No running task with IP {task_ip} found in cluster {cl}")
 
     service = service or _default_service(env)
     task_arns = aws_json(
@@ -98,7 +100,7 @@ def resolve_task(env, task_id=None, task_ip=None, service=None):
         "--service-name", service, "--desired-status", "RUNNING",
     ).get("taskArns", [])
     if not task_arns:
-        sys.exit(f"Error: No running tasks found in service {service}")
+        raise ECSError(f"No running tasks found in service {service}")
     tasks = aws_json(
         "ecs", "describe-tasks", "--region", REGION, "--cluster", cl, "--tasks", *task_arns,
     ).get("tasks", [])
@@ -106,7 +108,7 @@ def resolve_task(env, task_id=None, task_ip=None, service=None):
         container = _application_container(task)
         if container:
             return _short_id(task), container
-    sys.exit(f"Error: No running tasks with an application container found in service {service}")
+    raise ECSError(f"No running tasks with an application container found in service {service}")
 
 
 def run_command(env, task_id, command, container=None, interactive=True):

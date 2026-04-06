@@ -41,7 +41,7 @@ def run(args):
     ecs.confirm_production(env)
     ecs.ensure_authenticated(exit_without_login=args.exit_without_login)
 
-    task_id, _ = ecs.resolve_task(env, task_id=args.task_id, task_ip=args.task_ip, service=args.service)
+    task_id, container = ecs.resolve_task(env, task_id=args.task_id, task_ip=args.task_ip, service=args.service)
     bucket = ecs.s3_bucket(env)
     key = f"temp-{secrets.token_hex(8)}"
     s3_uri = f"s3://{bucket}/{key}"
@@ -54,6 +54,7 @@ def run(args):
             env,
             task_id,
             f"aws s3 cp {args.remote_path} {s3_uri} --region {ecs.REGION}",
+            container=container,
         )
         if exit_code != 0:
             sys.exit("Error: Failed to copy file from container to S3")

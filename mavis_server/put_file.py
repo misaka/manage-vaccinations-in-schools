@@ -46,7 +46,7 @@ def run(args):
 
     remote_path = args.remote_path or f"/tmp/{os.path.basename(args.local_file)}"
 
-    task_id, _ = ecs.resolve_task(env, task_id=args.task_id, task_ip=args.task_ip, service=args.service)
+    task_id, container = ecs.resolve_task(env, task_id=args.task_id, task_ip=args.task_ip, service=args.service)
     bucket = ecs.s3_bucket(env)
     key = f"temp-{secrets.token_hex(8)}"
     s3_uri = f"s3://{bucket}/{key}"
@@ -64,6 +64,7 @@ def run(args):
             env,
             task_id,
             f"aws s3 cp {s3_uri} {remote_path} --region {ecs.REGION}",
+            container=container,
         )
     finally:
         subprocess.run(
